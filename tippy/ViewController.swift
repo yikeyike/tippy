@@ -8,14 +8,28 @@
 
 import UIKit
 
-class ViewController: UIViewController {
+class ViewController: UIViewController, UITextFieldDelegate{
     let tipLabel = UILabel.init()
+    let userdefault = UserDefaults()
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        billTextField.delegate = self
+        shareNumTextField.delegate = self
+        
+        
+        if let billText = userdefault.value(forKey: "bill") as? String {
+            billTextField.text = billText
+        }
+        if let shareText = userdefault.value(forKey: "share") as? String {
+            shareNumTextField.text = shareText
+        }
+        if let tipR = userdefault.value(forKey: "range") as? Float {
+            tipSlider.value = tipR
+        }
         self.updateTipRange()
         self.view.addSubview(tipLabel)
+        self.calculateTip()
     }
 
     @IBOutlet weak var billTextField: UITextField!
@@ -23,14 +37,17 @@ class ViewController: UIViewController {
     @IBOutlet weak var shareNumTextField: UITextField!
     
     @IBOutlet weak var tipSlider: UISlider!
-//    @IBOutlet var tipRangeLabel: UILabel!
-    
+
     @IBAction func changeBill(_ sender: Any) {
+        userdefault.setValue(billTextField.text, forKey: "bill")
         self.calculateTip()
     }
+
     @IBAction func changeShare(_ sender: Any) {
+        userdefault.setValue(shareNumTextField.text, forKey: "share")
         self.calculateTip()
     }
+
     @IBAction func RangeChanged(_ sender: Any) {
         self.updateTipRange()
 
@@ -51,7 +68,7 @@ class ViewController: UIViewController {
         
         tipLabel.frame = CGRect(x: x_pos, y: y_pos, width: 100, height: 40)
         tipLabel.text = String(format: "Tip: %.f%%", round(Double(tipSlider.value) * 100))
-
+        userdefault.setValue(Float(round(Double(tipSlider.value) * 100) / 100), forKey: "range")
     }
     
     func calculateTip()  {
@@ -69,13 +86,4 @@ class ViewController: UIViewController {
             eachShare.text = String(format: "$%.2f", eachshare)
         }
     }
-    
-    func setUISliderThumbValueWithLabel(slider: UISlider) -> CGPoint {
-        let slidertTrack : CGRect = slider.trackRect(forBounds: slider.bounds)
-        let sliderFrm : CGRect = slider.thumbRect(forBounds: slider.bounds, trackRect: slidertTrack, value: slider.value)
-        return CGPoint(x: sliderFrm.origin.x + slider.frame.origin.x + 20, y: slider.frame.origin.y - 40)
-    }
-
-    
 }
-
